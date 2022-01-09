@@ -1,5 +1,0 @@
-// test
-
-public class Test {
-
-}
