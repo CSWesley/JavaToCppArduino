@@ -3,6 +3,7 @@ package Translator;
 import java.io.IOException;
 import java.util.Scanner;
 import java.io.File;
+import java.io.FileWriter;
 
 public class Translate {
 
@@ -25,31 +26,56 @@ public class Translate {
 
     private void translate(String inputFile, String outputDir) throws IOException {
         File file = new File(inputFile);
-        String fullInput = readFile(file);
-        System.out.println(fullInput);
+        String fullInput = readFile(file, outputDir);
+        System.out.println("\n--\n" + fullInput + "\n--\n");
     }
 
-    private String readFile(File inputFile) throws IOException {
+    private String readFile(File inputFile, String outputDir) throws IOException {
         Scanner scanner = new Scanner(inputFile);
+        StringBuilder fileToPaste = new StringBuilder();
+
+        String className = inputFile.getName().replace(".java", "");
+        File outputFile = new File(outputDir + "/" + className.replaceAll(" ", "") + ".ino");
+        outputFile.createNewFile();
+        System.out.println("Creating file: " + outputFile.getAbsolutePath());
+        FileWriter fw = new FileWriter(outputFile);
+
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if (line.startsWith("//")) {
-                // go to next line
-                System.out.println("Skipping comment: " + line);
+
+            if (line.contains("//")) {
+                String comment = line.substring(line.indexOf("//"));
+                fileToPaste.append(comment + "\n");
                 continue;
             } else if (line.startsWith("public class") || line.startsWith("class")) {
-                // get the class name
-                String className = line.substring(line.indexOf("class") + 6, line.indexOf("{"));
-                System.out.println("Class name: " + className);
+                continue;
+            } else if (line.startsWith("package")) {
+                continue;
+            } else if (line.startsWith("    public static void setup()") || line.startsWith("void setup()") || line.startsWith("public void setup()")) {
+                fileToPaste.append("void setup() {\n");
+                continue;
+            } else if (line.startsWith("    public static void loop()") || line.startsWith("void loop()") || line.startsWith("public void loop()")) {
+                fileToPaste.append("void loop() {\n");
+                continue;
+            } else if (line.equals("}") || line.equals("    }")) {
+                fileToPaste.append("}\n");
                 continue;
             } else {
-                // translate the line
-                System.out.println("Translating line: " + line + " (Skipped)");
+                if (!line.equals("")) {
+                    fileToPaste.append(line.substring(4) + "\n");
+                }
                 continue;
             }
         }
 
+        fileToPaste.deleteCharAt(fileToPaste.length() - 2);
 
-        return "File is empty";
+        fw.write(fileToPaste.toString());
+        fw.close();
+
+        scanner.close();
+
+
+        return fileToPaste.toString();
     }
 }
