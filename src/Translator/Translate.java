@@ -60,10 +60,20 @@ public class Translate {
             } else if (line.equals("}") || line.equals("    }")) {
                 fileToPaste.append("}\n");
                 continue;
-            } else {
+            } else if (line.contains("System.out.println") || line.contains("System.out.print")) {
+                String print = line.replace("System.out.println", "Serial.println").replace("System.out.print", "Serial.print");
+                // remove four spaces before the print statement
+                print = print.substring(4);
+                fileToPaste.append(print + "\n");
+            }
+            
+            else {
                 if (!line.equals("")) {
                     fileToPaste.append(line.substring(4) + "\n");
+                } else {
+                    fileToPaste.append("\n");
                 }
+                
                 continue;
             }
         }
