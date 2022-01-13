@@ -69,7 +69,9 @@ public class Translate {
             
             else {
                 if (!line.equals("")) {
-                    fileToPaste.append(line.substring(4) + "\n");
+                    // error here
+                    // fileToPaste.append(line.substring(4) + "\n");
+                    fileToPaste.append(line + "\n");
                 } else {
                     fileToPaste.append("\n");
                 }
